@@ -13,6 +13,7 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   AnimationController animationController;
+  Animation animation;
 
   @override
   void initState() {
@@ -21,14 +22,17 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     animationController = AnimationController(
       vsync: this,
       duration: Duration(seconds: 1),
-      upperBound: 100,
+//      upperBound: 100, //Curves range from 0-1 so upperBound can't be greater than 1
     );
+
+    animation =
+        CurvedAnimation(parent: animationController, curve: Curves.easeIn);
 
     animationController.forward();
     animationController.addListener(() {
       //We don't have to add anything to the state as value is changing anyways in addListener
       setState(() {});
-      print(animationController.value);
+      print(animation.value);
     });
   }
 
@@ -48,11 +52,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   tag: 'logo',
                   child: Container(
                     child: Image.asset('images/logo.png'),
-                    height: animationController.value,
+                    height: animation.value * 100,
                   ),
                 ),
                 Text(
-                  '${animationController.value.toInt()} %',
+                  'Flash Chat',
                   style: TextStyle(
                     fontSize: 45.0,
                     fontWeight: FontWeight.w900,
