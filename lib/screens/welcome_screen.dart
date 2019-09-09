@@ -28,13 +28,32 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     animation =
         CurvedAnimation(parent: animationController, curve: Curves.easeIn);
 
-    animationController.reverse(from: 1.0);
+    animationController.forward();
+
+    //Loops through the animation forward and reverse basing on the status changes at each of forward() and reverse() methods
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        //forward() animation ends with completed status
+        animationController.reverse(from: 1.0);
+      } else if (status == AnimationStatus.dismissed) {
+        //reverse() animation ends with dismissed status
+        animationController.forward();
+      }
+      print(status);
+    });
 
     animationController.addListener(() {
       //We don't have to add anything to the state as value is changing anyways in addListener
       setState(() {});
       print(animation.value);
     });
+  }
+
+  @override
+  void dispose() {
+    //animation doesn't dispose even if we change screens unless we manually dispose it.
+    animationController.dispose();
+    super.dispose();
   }
 
   @override
