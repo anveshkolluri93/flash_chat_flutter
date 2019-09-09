@@ -21,26 +21,28 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
     animationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 1),
+      duration: Duration(seconds: 2),
 //      upperBound: 100, //Curves range from 0-1 so upperBound can't be greater than 1
     );
 
-    animation =
-        CurvedAnimation(parent: animationController, curve: Curves.easeIn);
+//    animation =
+//        CurvedAnimation(parent: animationController, curve: Curves.easeIn);
 
+    animation = ColorTween(begin: Colors.red, end: Colors.blue)
+        .animate(animationController);
     animationController.forward();
 
-    //Loops through the animation forward and reverse basing on the status changes at each of forward() and reverse() methods
-    animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        //forward() animation ends with completed status
-        animationController.reverse(from: 1.0);
-      } else if (status == AnimationStatus.dismissed) {
-        //reverse() animation ends with dismissed status
-        animationController.forward();
-      }
-      print(status);
-    });
+//    //Loops through the animation forward and reverse basing on the status changes at each of forward() and reverse() methods
+//    animation.addStatusListener((status) {
+//      if (status == AnimationStatus.completed) {
+//        //forward() animation ends with completed status
+//        animationController.reverse(from: 1.0);
+//      } else if (status == AnimationStatus.dismissed) {
+//        //reverse() animation ends with dismissed status
+//        animationController.forward();
+//      }
+//      print(status);
+//    });
 
     animationController.addListener(() {
       //We don't have to add anything to the state as value is changing anyways in addListener
@@ -59,7 +61,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red,
+      backgroundColor: animation.value,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -72,7 +74,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   tag: 'logo',
                   child: Container(
                     child: Image.asset('images/logo.png'),
-                    height: animation.value * 100,
+                    height: 60.0,
                   ),
                 ),
                 Text(
