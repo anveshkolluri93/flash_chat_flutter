@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat_screen';
@@ -10,14 +11,17 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final _auth = FirebaseAuth.instance; //private field
+  final _firestore = Firestore.instance;
+  FirebaseUser loggedInUser;
+  String messageText;
+
   @override
   void initState() {
     super.initState();
     getCurrentUser();
+    messagesStream();
   }
-
-  final _auth = FirebaseAuth.instance; //private field
-  FirebaseUser loggedInUser;
 
   void getCurrentUser() async {
     try {
@@ -28,6 +32,22 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       print('auth in chat screen failed with $e');
+    }
+  }
+
+//  void getMessages() async {
+//    final messages = await _firestore.collection('messages').getDocuments();
+//    for (var message in messages.documents) {
+//      print(message.data);
+//    }
+//  }
+
+  void messagesStream() async {
+    //Live stream of messages are pushed from firebase to us
+    await for (var snapshot in _firestore.collection('messages').snapshots()) {
+      for (var message in snapshot.documents) {
+        print(message.data);
+      }
     }
   }
 
@@ -61,14 +81,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   Expanded(
                     child: TextField(
                       onChanged: (value) {
-                        //Do something with the user input.
+                        messageText = value;
                       },
                       decoration: kMessageTextFieldDecoration,
                     ),
                   ),
                   FlatButton(
                     onPressed: () {
-                      //Implement send functionality.
+                      _firestore.collection('messages').add(
+                          {'sender': loggedInUser.email, 'text': messageText});
                     },
                     child: Text(
                       'Send',
