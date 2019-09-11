@@ -87,6 +87,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       showSpinner = false;
                     });
                   } catch (e) {
+                    setState(() {
+                      showSpinner = false;
+                    });
                     print('Log in screen auth failed with $e');
                   }
                 },
