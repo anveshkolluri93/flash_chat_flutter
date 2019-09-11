@@ -13,7 +13,7 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  final _auth = FirebaseAuth.instance;
+  final _auth = FirebaseAuth.instance; //private field
   String email;
   String password;
 

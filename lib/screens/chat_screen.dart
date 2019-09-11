@@ -16,7 +16,7 @@ class _ChatScreenState extends State<ChatScreen> {
     getCurrentUser();
   }
 
-  final _auth = FirebaseAuth.instance;
+  final _auth = FirebaseAuth.instance; //private field
   FirebaseUser loggedInUser;
 
   void getCurrentUser() async {
