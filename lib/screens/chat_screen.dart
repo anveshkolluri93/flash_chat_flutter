@@ -42,14 +42,14 @@ class _ChatScreenState extends State<ChatScreen> {
 //    }
 //  }
 
-  void messagesStream() async {
-    //Live stream of messages are pushed from firebase to us
-    await for (var snapshot in _firestore.collection('messages').snapshots()) {
-      for (var message in snapshot.documents) {
-        print(message.data);
-      }
-    }
-  }
+//  void messagesStream() async {
+//    //Live stream of messages are pushed from firebase to us
+//    await for (var snapshot in _firestore.collection('messages').snapshots()) {
+//      for (var message in snapshot.documents) {
+//        print(message.data);
+//      }
+//    }
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +73,33 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('messages').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  //First time when firebase connection takes time as the stream is async call, we will render a loading icon
+                  // until we are connected to firebase and data is fetched
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.lightBlueAccent,
+                    ),
+                  );
+                }
+                final messages =
+                    snapshot.data.documents; //.data=> async snapshot's data
+                List<Text> messageWidgets = [];
+                for (var message in messages) {
+                  final messageText =
+                      message.data['text']; //.data=> text or sender in firebase
+                  final messageSender = message.data['sender'];
+
+                  final messageWidget =
+                      Text('$messageText from $messageSender');
+                  messageWidgets.add(messageWidget);
+                }
+                return Column(children: messageWidgets);
+              },
+            ),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
