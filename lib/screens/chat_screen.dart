@@ -11,11 +11,11 @@ class ChatScreen extends StatefulWidget {
 }
 
 final _firestore = Firestore.instance;
+FirebaseUser loggedInUser;
 
 class _ChatScreenState extends State<ChatScreen> {
   final messageTextController = TextEditingController();
   final _auth = FirebaseAuth.instance; //private field
-  FirebaseUser loggedInUser;
   String messageText;
 
   @override
@@ -133,8 +133,10 @@ class MessagesStream extends StatelessWidget {
               message.data['text']; //.data=> text or sender in firebase
           final messageSender = message.data['sender'];
 
-          final messageBubble =
-              MessageBubble(text: messageText, sender: messageSender);
+          final messageBubble = MessageBubble(
+              text: messageText,
+              sender: messageSender,
+              isMe: messageSender == loggedInUser.email);
           messageBubbles.add(messageBubble);
         }
         return Expanded(
@@ -151,29 +153,41 @@ class MessagesStream extends StatelessWidget {
 class MessageBubble extends StatelessWidget {
   final String sender;
   final String text;
+  final bool isMe;
 
-  MessageBubble({this.sender, this.text});
+  MessageBubble({this.sender, this.text, this.isMe});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             '$sender',
             style: TextStyle(fontSize: 12.0, color: Colors.black54),
           ),
           Material(
-            color: Colors.lightBlueAccent,
+            color: isMe ? Colors.lightBlueAccent : Colors.white,
             elevation: 5.0,
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: isMe
+                ? BorderRadius.only(
+                    topLeft: Radius.circular(30.0),
+                    bottomLeft: Radius.circular(30.0),
+                    bottomRight: Radius.circular(30.0))
+                : BorderRadius.only(
+                    topRight: Radius.circular(30.0),
+                    bottomLeft: Radius.circular(30.0),
+                    bottomRight: Radius.circular(30.0)),
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
               child: Text(
                 '$text',
-                style: TextStyle(fontSize: 20.0, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 20.0,
+                    color: isMe ? Colors.white : Colors.black54),
               ),
             ),
           ),
