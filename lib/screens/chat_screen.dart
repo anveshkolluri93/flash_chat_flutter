@@ -10,9 +10,10 @@ class ChatScreen extends StatefulWidget {
   _ChatScreenState createState() => _ChatScreenState();
 }
 
+final _firestore = Firestore.instance;
+
 class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance; //private field
-  final _firestore = Firestore.instance;
   FirebaseUser loggedInUser;
   String messageText;
 
@@ -72,39 +73,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            StreamBuilder<QuerySnapshot>(
-              stream: _firestore.collection('messages').snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  //First time when firebase connection takes time as the stream is async call, we will render a loading icon
-                  // until we are connected to firebase and data is fetched
-                  return Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.lightBlueAccent,
-                    ),
-                  );
-                }
-                final messages =
-                    snapshot.data.documents; //.data=> async snapshot's data
-                List<MessageBubble> messageBubbles = [];
-                for (var message in messages) {
-                  final messageText =
-                      message.data['text']; //.data=> text or sender in firebase
-                  final messageSender = message.data['sender'];
-
-                  final messageBubble =
-                      MessageBubble(text: messageText, sender: messageSender);
-                  messageBubbles.add(messageBubble);
-                }
-                return Expanded(
-                  child: ListView(
-                    children: messageBubbles,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-                  ),
-                );
-              },
-            ),
+            MessagesStream(),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -134,6 +103,44 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class MessagesStream extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore.collection('messages').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          //First time when firebase connection takes time as the stream is async call, we will render a loading icon
+          // until we are connected to firebase and data is fetched
+          return Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.lightBlueAccent,
+            ),
+          );
+        }
+        final messages =
+            snapshot.data.documents; //.data=> async snapshot's data
+        List<MessageBubble> messageBubbles = [];
+        for (var message in messages) {
+          final messageText =
+              message.data['text']; //.data=> text or sender in firebase
+          final messageSender = message.data['sender'];
+
+          final messageBubble =
+              MessageBubble(text: messageText, sender: messageSender);
+          messageBubbles.add(messageBubble);
+        }
+        return Expanded(
+          child: ListView(
+            children: messageBubbles,
+            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+          ),
+        );
+      },
     );
   }
 }
