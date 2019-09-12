@@ -126,7 +126,7 @@ class MessagesStream extends StatelessWidget {
           );
         }
         final messages =
-            snapshot.data.documents; //.data=> async snapshot's data
+            snapshot.data.documents.reversed; //.data=> async snapshot's data
         List<MessageBubble> messageBubbles = [];
         for (var message in messages) {
           final messageText =
