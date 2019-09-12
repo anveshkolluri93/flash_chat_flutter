@@ -20,7 +20,6 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     getCurrentUser();
-    messagesStream();
   }
 
   void getCurrentUser() async {
@@ -87,17 +86,23 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
                 final messages =
                     snapshot.data.documents; //.data=> async snapshot's data
-                List<Text> messageWidgets = [];
+                List<MessageBubble> messageBubbles = [];
                 for (var message in messages) {
                   final messageText =
                       message.data['text']; //.data=> text or sender in firebase
                   final messageSender = message.data['sender'];
 
-                  final messageWidget =
-                      Text('$messageText from $messageSender');
-                  messageWidgets.add(messageWidget);
+                  final messageBubble =
+                      MessageBubble(text: messageText, sender: messageSender);
+                  messageBubbles.add(messageBubble);
                 }
-                return Column(children: messageWidgets);
+                return Expanded(
+                  child: ListView(
+                    children: messageBubbles,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+                  ),
+                );
               },
             ),
             Container(
@@ -128,6 +133,41 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class MessageBubble extends StatelessWidget {
+  final String sender;
+  final String text;
+
+  MessageBubble({this.sender, this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          Text(
+            '$sender',
+            style: TextStyle(fontSize: 12.0, color: Colors.black54),
+          ),
+          Material(
+            color: Colors.lightBlueAccent,
+            elevation: 5.0,
+            borderRadius: BorderRadius.circular(30.0),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+              child: Text(
+                '$text',
+                style: TextStyle(fontSize: 20.0, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
